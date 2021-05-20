@@ -12,6 +12,7 @@
 
 static int iters = DEFAULT_ITERS;
 static int dim = DEFAULT_DIM;
+static int total_dim;
 static char testname[128] = { 0 };
 
 static int computation = 0;
@@ -81,7 +82,7 @@ int main(int argc, char **argv)
         else if (!strcmp(*argv, "--dim")) {
             --argc;
             ++argv;
-            dim = atoi(*argv);
+            total_dim = atoi(*argv);
         }
         else if (!strcmp(*argv, "-c")) {
             --argc;
@@ -97,7 +98,8 @@ int main(int argc, char **argv)
     MPI_Info_create(&info);
     MPI_Info_set(info, (char *) "shmbuf_regist", (char *) "true");
 
-    packbuf_sz = dim * 4 / comm_size;       /* four boundaries */
+    dim = total_dim / comm_size;
+    packbuf_sz = dim * 4;       /* four boundaries */
     MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, comm_rank, info, &shm_comm);
     MPI_Win_allocate_shared(packbuf_sz * sizeof(double) * 2, 1, MPI_INFO_NULL,
                             shm_comm, &winbuf, &shm_win);
