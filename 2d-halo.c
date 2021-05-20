@@ -97,7 +97,7 @@ int main(int argc, char **argv)
     MPI_Info_create(&info);
     MPI_Info_set(info, (char *) "shmbuf_regist", (char *) "true");
 
-    packbuf_sz = dim * 4;       /* four boundaries */
+    packbuf_sz = dim * 4 / comm_size;       /* four boundaries */
     MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, comm_rank, info, &shm_comm);
     MPI_Win_allocate_shared(packbuf_sz * sizeof(double) * 2, 1, MPI_INFO_NULL,
                             shm_comm, &winbuf, &shm_win);
@@ -146,7 +146,10 @@ int main(int argc, char **argv)
     start = MPI_Wtime();
     for (i = 0; i < iters; i++) {
         int nreqs = 0;
-
+        if(comm_rank == 0){
+            printf("start iteration %d\n", i);
+            fflush(stdout);
+        }
 #ifdef STEP_TIME
         p_t0 = MPI_Wtime();
 #endif
@@ -167,13 +170,20 @@ int main(int argc, char **argv)
         post_time += MPI_Wtime() - p_t0;
         cp_t0 = MPI_Wtime();
 #endif
-
+        if(comm_rank == 0){
+            printf("start computation, amount %d\n", computation);
+            fflush(stdout);
+        }
         delay();
 
 #ifdef STEP_TIME
         cp_time += MPI_Wtime() - cp_t0;
         w_t0 = MPI_Wtime();
 #endif
+        if(comm_rank == 0){
+            printf("start wait, size %ld\n", packbuf_sz);
+            fflush(stdout);
+        }
         MPI_Waitall(nreqs, req, MPI_STATUSES_IGNORE);
 #ifdef STEP_TIME
         wait_time += MPI_Wtime() - w_t0;
