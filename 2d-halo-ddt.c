@@ -120,14 +120,15 @@ int main(int argc, char **argv)
                      inbuf[ind(j + 1, k)] + inbuf[ind(j, k)]) / 5.0;
             }
         }
+#ifdef STEP_TIME
+        cp_time += MPI_Wtime() - cp_t0;
+#endif
+
 
         MPI_Isend(&outbuf[ind(1, 1)], dim, MPI_DOUBLE, north, 0, comm, &req[4]);
         MPI_Isend(&outbuf[ind(dim, 1)], dim, MPI_DOUBLE, south, 0, comm, &req[5]);
         MPI_Isend(&outbuf[ind(1, 1)], 1, type, west, 0, comm, &req[6]);
         MPI_Isend(&outbuf[ind(1, dim)], 1, type, east, 0, comm, &req[7]);
-#ifdef STEP_TIME
-        cp_time += MPI_Wtime() - cp_t0;
-#endif
 
         MPI_Waitall(8, req, MPI_STATUSES_IGNORE);
 
