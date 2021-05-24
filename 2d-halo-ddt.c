@@ -9,7 +9,7 @@
 #include <string.h>
 #include <assert.h>
 #include "mpi.h"
-
+#include "math.h"
 /* This benchmark evaluates 2D halo exchange with cart and derived datatype.*/
 
 #define DEFAULT_ITERS  (1024)
@@ -45,6 +45,7 @@ int main(int argc, char **argv)
     int dims[2] = { 0, 0 }, periods[2] = {
     1, 1};
     int north, south, east, west;
+    int org_np, cur_dim;
     double *inbuf, *outbuf, *tmp;
     MPI_Comm comm;
     MPI_Request req[8];
@@ -65,12 +66,18 @@ int main(int argc, char **argv)
         else if (!strcmp(*argv, "--dim")) {
             --argc;
             ++argv;
-            dim = atoi(*argv);
+            cur_dim = atoi(*argv);
+        }else if (!strcmp(*argv, "--org_np")) {
+            --argc;
+            ++argv;
+            org_np = atoi(*argv);
         }
         else {
             usage();
         }
     }
+
+    int dim = (int) sqrt((double) cur_dim * cur_dim * (org_np - comm_size) / comm_size + cur_dim * cur_dim) ;
 
     inbuf = (double *) malloc((dim + 2) * (dim + 2) * sizeof(double));
     outbuf = (double *) malloc((dim + 2) * (dim + 2) * sizeof(double));
