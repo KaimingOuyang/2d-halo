@@ -77,7 +77,7 @@ int main(int argc, char **argv)
         }
     }
 
-    int dim = (double) org_np / comm_size * cur_dim;
+    int dim = sqrt((double) org_np / comm_size) * cur_dim;
 
     inbuf = (double *) malloc((dim + 2) * (dim + 2) * sizeof(double));
     outbuf = (double *) malloc((dim + 2) * (dim + 2) * sizeof(double));
