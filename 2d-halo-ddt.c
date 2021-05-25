@@ -134,10 +134,10 @@ int main(int argc, char **argv)
         cp_time += MPI_Wtime() - cp_t0;
 #endif
         int pos = 0;
-        MPI_Pack(&outbuf[ind(1, 1)], 1, type, pack_sbuf_w, buf_sz, &pos, MPI_COMM_WORLD);
+        MPI_Pack(&outbuf[ind(1, 1)], 1, type, pack_sbuf_w, buf_sz, &pos, comm);
         assert(pos == buf_sz);
         pos = 0;
-        MPI_Pack(&outbuf[ind(1, 1)], 1, type, pack_sbuf_e, buf_sz, &pos, MPI_COMM_WORLD);
+        MPI_Pack(&outbuf[ind(1, 1)], 1, type, pack_sbuf_e, buf_sz, &pos, comm);
         assert(pos == buf_sz);
         MPI_Isend(&outbuf[ind(1, 1)], dim, MPI_DOUBLE, north, 0, comm, &req[4]);
         MPI_Isend(&outbuf[ind(dim, 1)], dim, MPI_DOUBLE, south, 0, comm, &req[5]);
@@ -146,10 +146,10 @@ int main(int argc, char **argv)
 
         MPI_Waitall(8, req, MPI_STATUSES_IGNORE);
         pos = 0;
-        MPI_Unpack(pack_rbuf_w, buf_sz, &pos, &outbuf[ind(1, 0)], 1, type, MPI_COMM_WORLD);
+        MPI_Unpack(pack_rbuf_w, buf_sz, &pos, &outbuf[ind(1, 0)], 1, type, comm);
         assert(pos == buf_sz);
         pos = 0;
-        MPI_Unpack(pack_rbuf_w, buf_sz, &pos, &outbuf[ind(1, 0)], 1, type, MPI_COMM_WORLD);
+        MPI_Unpack(pack_rbuf_w, buf_sz, &pos, &outbuf[ind(1, dim + 1)], 1, type, comm);
         assert(pos == buf_sz);
         /* swap in and out buffers */
         tmp = outbuf;
